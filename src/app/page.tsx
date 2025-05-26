@@ -21,6 +21,11 @@ export default function Home() {
   const particleWrapperRef = useRef<HTMLDivElement>(null);
   const ellipsRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLDivElement>(null);
+  const summonTextRef = useRef<HTMLParagraphElement>(null);
+
+  const identifyStepRef = useRef<HTMLParagraphElement>(null);
+  const designStepRef = useRef<HTMLParagraphElement>(null);
+  const developStepRef = useRef<HTMLParagraphElement>(null);
 
   const heroTriggerRef = useRef<HTMLDivElement>(null);
   const pinnedHeroElementRef = useRef<HTMLDivElement>(null);
@@ -44,11 +49,72 @@ export default function Home() {
     if (descRef.current) {
       gsap.set(descRef.current, { autoAlpha: 0, scale: 0.8 });
     }
+    if (summonTextRef.current) {
+      gsap.set(summonTextRef.current, { autoAlpha: 0.6, scale: 0.7 });
+    }
+
+    if (
+      identifyStepRef.current &&
+      designStepRef.current &&
+      developStepRef.current
+    ) {
+      gsap.set(
+        [
+          identifyStepRef.current,
+          designStepRef.current,
+          developStepRef.current,
+        ],
+        { autoAlpha: 0, y: 20 }
+      );
+      gsap.set(identifyStepRef.current, { color: "#60A5FA" });
+      gsap.set(designStepRef.current, { color: "#4B5563" });
+      gsap.set(developStepRef.current, { color: "#4B5563" });
+    }
 
     if (panelRefs.current.length === 3) {
-      panelRefs.current.forEach((panel) => {
+      panelRefs.current.forEach((panel, i) => {
         if (panel) {
           gsap.set(panel.querySelectorAll(".fade-in"), { autoAlpha: 0 });
+
+          if (i === 1) {
+            const midGlobe = panel.querySelector("#globe-mid-design");
+            const leftGlobe = panel.querySelector("#globe-side-left");
+            const rightGlobe = panel.querySelector("#globe-side-right");
+
+            if (midGlobe) {
+              gsap.set(midGlobe, {
+                autoAlpha: 0,
+                scale: 0.7,
+                yPercent: 10,
+              });
+            }
+            if (leftGlobe) {
+              gsap.set(leftGlobe, {
+                autoAlpha: 0,
+                scale: 0.5,
+                x: 50,
+                xPercent: 50,
+                rotation: -180,
+                yPercent: 10,
+                zIndex: -1,
+              });
+            }
+            if (rightGlobe) {
+              gsap.set(rightGlobe, {
+                autoAlpha: 0,
+                scale: 0.5,
+                xPercent: -50,
+                rotation: 180,
+                yPercent: 10,
+                zIndex: -1,
+              });
+            }
+          } else if (i === 2) {
+            const polygons = panel.querySelectorAll("[id^='globe-polygon-']");
+            if (polygons.length > 0) {
+              gsap.set(polygons, { autoAlpha: 0, scale: 0.5 });
+            }
+          }
         }
       });
     }
@@ -58,7 +124,7 @@ export default function Home() {
         trigger: heroTriggerRef.current,
         pin: pinnedHeroElementRef.current,
         start: "top top",
-        end: "+=40%",
+        end: "+=60%",
       });
     }
 
@@ -74,7 +140,7 @@ export default function Home() {
             gsap.to(navbarWrapperRef.current, {
               autoAlpha: 1,
               y: 0,
-              duration: 0.5,
+              duration: 0.7,
               ease: "power2.out",
               delay: 0.5,
             });
@@ -82,7 +148,7 @@ export default function Home() {
           if (particleWrapperRef.current) {
             gsap.to(particleWrapperRef.current, {
               autoAlpha: 1,
-              duration: 0.5,
+              duration: 0.7,
               ease: "none",
               delay: 0.7,
             });
@@ -91,7 +157,7 @@ export default function Home() {
             gsap.to(ellipsRef.current, {
               autoAlpha: 1,
               scale: 1,
-              duration: 1,
+              duration: 1.2,
               ease: "power1.inOut",
               delay: 0.3,
             });
@@ -100,9 +166,18 @@ export default function Home() {
             gsap.to(descRef.current, {
               autoAlpha: 1,
               scale: 1,
-              duration: 0.6,
+              duration: 0.8,
               ease: "back.out(1.7)",
-              delay: 0.9,
+              delay: 1.1,
+            });
+          }
+          if (summonTextRef.current) {
+            gsap.to(summonTextRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              duration: 1.2,
+              ease: "power1.inOut",
+              delay: 0.3,
             });
           }
         },
@@ -118,6 +193,22 @@ export default function Home() {
       const panels = panelRefs.current.filter(
         (el) => el !== null
       ) as HTMLDivElement[];
+
+      const updateStepHighlight = (activeIndex: number) => {
+        const steps = [
+          identifyStepRef.current,
+          designStepRef.current,
+          developStepRef.current,
+        ];
+        steps.forEach((step, index) => {
+          if (step) {
+            gsap.to(step, {
+              color: index === activeIndex ? "#60A5FA" : "#4B5563",
+              duration: 0.3,
+            });
+          }
+        });
+      };
 
       const horizontalScrollTween = gsap.to(horizontalTrackRef.current, {
         x: () =>
@@ -235,6 +326,7 @@ export default function Home() {
                 overwrite: "auto",
               });
               animatePanel2Globes();
+              updateStepHighlight(i);
             },
             onEnterBack: () => {
               gsap.to(panel.querySelectorAll(".fade-in"), {
@@ -245,6 +337,7 @@ export default function Home() {
                 overwrite: "auto",
               });
               animatePanel2Globes();
+              updateStepHighlight(i);
             },
             onLeave: () => {
               gsap.to(panel.querySelectorAll(".fade-in"), {
@@ -290,6 +383,7 @@ export default function Home() {
                   delay: 0.3,
                 });
               }
+              updateStepHighlight(i);
             },
             onEnterBack: () => {
               gsap.to(panel.querySelectorAll(".fade-in"), {
@@ -312,6 +406,7 @@ export default function Home() {
                   delay: 0.3,
                 });
               }
+              updateStepHighlight(i);
             },
             onLeave: () => {
               gsap.to(panel.querySelectorAll(".fade-in"), {
@@ -347,6 +442,36 @@ export default function Home() {
             },
           });
         }
+      });
+    }
+
+    if (triggerRef.current) {
+      ScrollTrigger.create({
+        trigger: triggerRef.current,
+        start: "top center-=20%",
+        once: true,
+        onEnter: () => {
+          if (
+            identifyStepRef.current &&
+            designStepRef.current &&
+            developStepRef.current
+          ) {
+            gsap.to(
+              [
+                identifyStepRef.current,
+                designStepRef.current,
+                developStepRef.current,
+              ],
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.1,
+                delay: 0.2,
+              }
+            );
+          }
+        },
       });
     }
 
@@ -388,7 +513,10 @@ export default function Home() {
           </div>
           {/* Content of hero section */}
           <div className="relative flex flex-col gap-[5rem] items-center justify-center h-full pointer-events-none">
-            <p className="text-white text-[10vw] md:text-[150px] lg:text-[200px] font-kronaOne pointer-events-auto">
+            <p
+              ref={summonTextRef}
+              className="text-white text-[10vw] md:text-[150px] lg:text-[200px] font-kronaOne pointer-events-auto"
+            >
               SUMMON
             </p>
             <div
@@ -408,13 +536,36 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      <div className="my-[15rem]"></div>
       {/* section 2 - Horizontal Scroll Section */}
-      <section ref={triggerRef} className="relative h-[300vh] z-10 mt-[15rem]">
+      <section ref={triggerRef} className="relative h-[300vh] z-10">
         <div
           ref={pinnedElementRef}
           className="h-screen w-screen overflow-hidden relative z-40"
         >
+          <div
+            id="centralized-step-list"
+            className="absolute top-1/2 -translate-y-1/2 left-8 md:left-16 lg:left-24 z-50 flex flex-col gap-4"
+          >
+            <p
+              ref={identifyStepRef}
+              className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px]"
+            >
+              IDENTIFY
+            </p>
+            <p
+              ref={designStepRef}
+              className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px]"
+            >
+              DESIGN
+            </p>
+            <p
+              ref={developStepRef}
+              className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px]"
+            >
+              DEVELOP
+            </p>
+          </div>
           <div
             ref={horizontalTrackRef}
             className="h-screen w-[300vw] flex flex-row relative"
@@ -433,17 +584,6 @@ export default function Home() {
                     height={500}
                     className="object-contain max-w-[70vw] max-h-[50vh] "
                   />
-                </div>
-                <div className="flex flex-col justify-start gap-4">
-                  <p className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] text-blue-400">
-                    IDENTIFY
-                  </p>
-                  <p className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] text-gray-600">
-                    DESIGN
-                  </p>
-                  <p className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] text-gray-600">
-                    DEVELOP
-                  </p>
                 </div>
                 <div className="flex flex-col text-center w-full">
                   <p className="font-kronaOne text-[64px]">IDENTIFY</p>
@@ -487,17 +627,6 @@ export default function Home() {
                       className="object-contain w-full max-h-[50vh] h-full relative z-10"
                     />
                   </div>
-                </div>
-                <div className="flex flex-col gap-4 fade-in">
-                  <p className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] text-gray-600">
-                    IDENTIFY
-                  </p>
-                  <p className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] text-blue-400">
-                    DESIGN
-                  </p>
-                  <p className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] text-gray-600">
-                    DEVELOP
-                  </p>
                 </div>
                 <div className="flex flex-col text-center w-full fade-in">
                   <p className="font-kronaOne text-[32px] lg:text-[64px] fade-in">
@@ -567,17 +696,6 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                <div className="flex flex-col gap-4 justify-center fade-in mt-8">
-                  <p className="font-kronaOne text-sm lg:text-[20px] text-gray-600">
-                    IDENTIFY
-                  </p>
-                  <p className="font-kronaOne text-sm lg:text-[20px] text-gray-600">
-                    DESIGN
-                  </p>
-                  <p className="font-kronaOne text-sm lg:text-[20px] text-blue-400">
-                    DEVELOP
-                  </p>
-                </div>
                 <div className="flex flex-col text-center w-full fade-in">
                   <p className="font-kronaOne text-[32px] lg:text-[64px] fade-in">
                     DEVELOP
@@ -594,7 +712,7 @@ export default function Home() {
       </section>
 
       {/* section 3 */}
-      <section className="relative flex flex-col gap-4 text-white px-4 lg:px-0">
+      <section className="relative flex flex-col gap-4 text-white px-4 lg:px-0 pb-[10rem]">
         <p className="font-kronaOne text-3xl lg:text-[48px] text-center">
           FAST PACED AI BOUTIQUE
         </p>
@@ -644,7 +762,7 @@ export default function Home() {
       </section>
 
       {/* section 4 */}
-      <section className="relative flex flex-col py-10">
+      <section className="relative flex flex-col py-[10rem]">
         <div className="flex flex-col mb-10 gap-1 text-white items-center justify-center">
           <p className="font-kronaOne text-[40px]">BUILD YOUR OWN AI</p>
           <p className="font-poppins text-[28px]">
