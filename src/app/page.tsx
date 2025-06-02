@@ -632,19 +632,19 @@ export default function Home() {
         <div ref={pinnedHeroElementRef} className="h-full w-full relative">
           <div
             ref={ellipsRef}
-            className="absolute z-0 w-full h-full bottom-[11rem] origin-center"
+            className="absolute z-0 w-[180vw] h-[100vh] lg:w-full lg:h-full bottom-[11rem] -left-[12.7rem] lg:-left-0"
           >
             <Image
               src="/ellips.png"
               alt="ellips"
               fill
-              className="object-cover w-auto h-auto"
+              className="object-fill"
             />
           </div>
           <div className="relative flex flex-col gap-[5rem] items-center justify-center h-full pointer-events-none">
             <p
               ref={summonTextRef}
-              className="text-white text-[10vw] md:text-[150px] lg:text-[200px] font-kronaOne pointer-events-auto"
+              className="text-white text-[15vw] lg:text-[200px] font-kronaOne pointer-events-auto"
             >
               SUMMON
             </p>
@@ -1106,12 +1106,10 @@ export default function Home() {
                       <option value="" disabled>
                         Select Budget
                       </option>
-                      <option value="$1,000 - $5,000">$1,000 - $5,000</option>
-                      <option value="$5,000 - $10,000">$5,000 - $10,000</option>
-                      <option value="$10,000 - $20,000">
-                        $10,000 - $20,000
-                      </option>
-                      <option value="$20,000+">$20,000+</option>
+                      <option value="Rp 100 mio">Rp 100 mio</option>
+                      <option value="Rp 100 - 150 mio">Rp 100 - 150 mio</option>
+                      <option value="Rp 150 - 250 mio">Rp 150 - 250 mio</option>
+                      <option value="Rp 300 mio+">Rp 300 mio+</option>
                       <option value="Not Sure">Not Sure</option>
                     </select>
                   </div>
@@ -1134,19 +1132,15 @@ export default function Home() {
                       <option value="" disabled>
                         Select Service
                       </option>
-                      <option value="Lead Generation Agent">
-                        Lead Generation Agent
-                      </option>
-                      <option value="Credit Analyst Agent">
-                        Credit Analyst Agent
-                      </option>
-                      <option value="Deep Research Agent">
-                        Deep Research Agent
-                      </option>
                       <option value="Custom AI Solution">
                         Custom AI Solution
                       </option>
-                      <option value="AI Consultation">AI Consultation</option>
+                      <option value="AI Audit and Consulting">
+                        AI Audit and Consulting
+                      </option>
+                      <option value="AI Education and Training">
+                        AI Education and Training
+                      </option>
                       <option value="Other">Other</option>
                     </select>
                   </div>

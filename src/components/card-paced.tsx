@@ -24,27 +24,32 @@ export default function CardPaced({
       <p className="font-inter text-[23px] font-bold mt-4">{title}</p>
       <p className="font-inter text-[16px] font-thin mt-4">{content}</p>
       {secondImage ? (
-        <div className="flex flex-row items-center justify-center pb-5">
-          <div className="relative w-[280px] h-[16rem]">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-5">
+          <div className="relative w-full aspect-[4/3] sm:w-1/2 sm:h-64">
             <Image
               src={image}
               alt={image}
               fill
-              className="object-cover self-end"
+              className="object-contain rounded-md"
             />
           </div>
-          <div className="relative w-[280px] h-[17rem]">
+          <div className="relative w-full aspect-[4/3] sm:w-1/2 sm:h-64">
             <Image
               src={secondImage}
               alt={secondImage}
               fill
-              className="object-cover self-end"
+              className="object-contain rounded-md"
             />
           </div>
         </div>
       ) : (
-        <div className="relative w-[320px] h-60  self-center">
-          <Image src={image} alt={image} fill className="object-cover" />
+        <div className="relative w-full max-w-xs mx-auto aspect-[4/3] sm:h-60">
+          <Image
+            src={image}
+            alt={image}
+            fill
+            className="object-contain sm:object-cover rounded-md"
+          />
         </div>
       )}
     </div>
