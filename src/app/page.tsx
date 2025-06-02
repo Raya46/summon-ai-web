@@ -632,13 +632,13 @@ export default function Home() {
         <div ref={pinnedHeroElementRef} className="h-full w-full relative">
           <div
             ref={ellipsRef}
-            className="absolute z-0 w-[180vw] h-[100vh] lg:w-full lg:h-full bottom-[11rem] -left-[12.7rem] lg:-left-0"
+            className="absolute z-0 w-[150vw] h-[80vh] -left-[25vw] bottom-[11rem] lg:w-full lg:h-full lg:left-0 lg:bottom-0"
           >
             <Image
               src="/ellips.png"
               alt="ellips"
               fill
-              className="object-fill"
+              className="object-fill lg:object-cover"
             />
           </div>
           <div className="relative flex flex-col gap-[5rem] items-center justify-center h-full pointer-events-none">
@@ -677,7 +677,7 @@ export default function Home() {
           >
             <p
               ref={identifyStepRef}
-              className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px]"
+              className="font-kronaOne text-sm sm:text-base md:text-lg lg:text-[20px] fade-in"
             >
               IDENTIFY
             </p>
@@ -700,20 +700,22 @@ export default function Home() {
           >
             <div
               ref={addToRefs}
-              className="h-screen w-screen flex flex-col justify-center items-center text-white p-8"
+              className="h-screen w-screen flex flex-col items-center text-white p-8 pt-[10vh] lg:pt-0 lg:justify-center"
             >
               <div className="flex flex-col w-full max-w-6xl">
-                <div className="flex flex-col items-center justify-center w-full mb-8">
+                <div className="flex flex-col items-center justify-center w-full mb-8 h-[45vh] lg:h-auto">
                   <Image
                     src="/globe-mid.png"
                     alt="globe-mid"
                     width={500}
                     height={500}
-                    className="object-contain max-w-[70vw] max-h-[50vh] "
+                    className="object-contain max-w-[70vw] max-h-full "
                   />
                 </div>
                 <div className="flex flex-col text-center w-full">
-                  <p className="font-kronaOne text-[64px]">IDENTIFY</p>
+                  <p className="font-kronaOne text-[32px] md:text-[48px] lg:text-[64px]">
+                    IDENTIFY
+                  </p>
                   <p className="font-poppins text-lg sm:text-xl md:text-2xl lg:text-[28px]">
                     We help you identify automation opportunities in your
                     business, and summon the incredible power of AI.
@@ -723,10 +725,10 @@ export default function Home() {
             </div>
             <div
               ref={addToRefs}
-              className="h-screen w-screen flex flex-col justify-center items-center text-white p-8"
+              className="h-screen w-screen flex flex-col items-center text-white p-8 pt-[10vh] lg:pt-0 lg:justify-center"
             >
               <div className="flex flex-col w-full max-w-6xl">
-                <div className="w-full flex justify-center items-center mb-8 md:mb-0">
+                <div className="w-full flex justify-center items-center mb-8 lg:mb-0 h-[45vh] lg:h-auto">
                   <div className="flex h-full flex-row gap-0 justify-center items-center">
                     <Image
                       id="globe-side-left"
@@ -734,7 +736,7 @@ export default function Home() {
                       alt="globe-side-left"
                       width={300}
                       height={400}
-                      className="object-contain w-full max-h-[50vh] h-full relative z-10"
+                      className="object-contain w-full max-h-full h-full relative z-10"
                     />
                     <Image
                       id="globe-mid-design"
@@ -742,7 +744,7 @@ export default function Home() {
                       alt="globe-mid-design"
                       width={400}
                       height={400}
-                      className="object-contain max-w-[40vw] md:max-w-full max-h-[30vh] md:max-h-[50vh] relative z-20"
+                      className="object-contain max-w-[40vw] md:max-w-full max-h-full relative z-20"
                     />
                     <Image
                       id="globe-side-right"
@@ -750,28 +752,30 @@ export default function Home() {
                       alt="globe-side-right"
                       width={300}
                       height={400}
-                      className="object-contain w-full max-h-[50vh] h-full relative z-10"
+                      className="object-contain w-full max-h-full h-full relative z-10"
                     />
                   </div>
                 </div>
                 <div className="flex flex-col text-center w-full fade-in">
-                  <p className="font-kronaOne text-[32px] lg:text-[64px] fade-in">
+                  <p className="font-kronaOne text-[32px] md:text-[48px] lg:text-[70px] fade-in">
                     DESIGN
                   </p>
                   <p className="font-poppins text-lg lg:text-[28px] fade-in">
-                    We will design your AI Agent workflow and give them the best
-                    tools to make your job easier.
+                    We will design your AI Agent workflow
+                  </p>
+                  <p className="font-poppins text-lg lg:text-[28px] fade-in">
+                    and give them the best tools to make your job easier.{" "}
                   </p>
                 </div>
               </div>
             </div>
             <div
               ref={addToRefs}
-              className="h-screen w-screen flex flex-col justify-center items-center text-white p-8"
+              className="h-screen w-screen flex flex-col items-center text-white p-8 pt-[10vh] lg:pt-0 lg:justify-center"
             >
               <div className="flex flex-col w-full max-w-6xl">
-                <div className="w-full flex justify-center items-center relative">
-                  <div className="relative flex justify-center items-center">
+                <div className="w-full flex justify-center items-center relative mb-8 lg:mb-0 h-[45vh] lg:h-auto">
+                  <div className="relative flex h-full justify-center items-center">
                     <Image
                       id="globe-polygon-1"
                       src="/globe-polygon.png"
@@ -793,7 +797,7 @@ export default function Home() {
                       alt="globe-final"
                       width={400}
                       height={400}
-                      className="object-contain max-w-[70vw] md:max-w-full max-h-[40vh] md:max-h-[60vh] fade-in z-10"
+                      className="object-contain max-w-[70vw] md:max-w-full max-h-full fade-in z-10"
                     />
                     <Image
                       id="globe-polygon-3"
@@ -822,9 +826,10 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex flex-col text-center w-full fade-in">
-                  <p className="font-kronaOne text-[32px] lg:text-[64px] fade-in">
+                  <p className="font-kronaOne text-[32px] md:text-[48px] lg:text-[70px] fade-in">
                     DEVELOP
                   </p>
+
                   <p className="font-poppins text-lg lg:text-[28px] fade-in">
                     We leverage our extensive experience and network to develop
                     custom AI system that are proven to get your job done.
@@ -885,7 +890,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative flex flex-col py-[10rem]">
+      <section className="relative flex flex-col py-[10rem] mx-10">
         <div className="flex flex-col mb-10 gap-1 text-white items-center justify-center">
           <p className="font-kronaOne text-[40px]">BUILD YOUR OWN AI</p>
           <p className="font-poppins text-[28px]">
@@ -917,13 +922,12 @@ export default function Home() {
             className="object-cover"
           />
           <div className="relative flex justify-center items-center py-10">
-            <div className="absolute z-0 blur-[9rem] w-[10rem] h-[10rem] bg-[#2C00FF]"></div>
             <Image
               src="/branch-logo.png"
               alt="branch-logo"
-              width={200}
-              height={200}
-              className="object-cover z-10"
+              width={160}
+              height={160}
+              className="object-contain z-[999]"
             />
           </div>
           <Image
