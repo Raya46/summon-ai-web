@@ -22,11 +22,8 @@ export async function sendEmail(formData: FormDataValues) {
     port: parseInt(process.env.NODEMAILER_PORT || "587"),
 
     auth: {
-      user: process.env.GMAIL_USERNAME,
-      pass: process.env.GMAIL_PASSWORD,
-    },
-    tls: {
-      rejectUnauthorized: false,
+      user: process.env.GMAIL_USERNAME || "muhammadrayaarrizki@gmail.com",
+      pass: process.env.GMAIL_PASSWORD || "keso vvds vmos mndy",
     },
   });
 
