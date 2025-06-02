@@ -3,11 +3,11 @@ import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function ParticleBackground() {
+function ParticleBackgroundComponent() {
   const [init, setInit] = useState(false);
 
   useEffect(() => {
@@ -56,3 +56,7 @@ export default function ParticleBackground() {
     />
   );
 }
+
+const ParticleBackground = memo(ParticleBackgroundComponent);
+
+export default ParticleBackground;

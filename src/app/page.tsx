@@ -6,11 +6,44 @@ import ParticleBackground from "@/components/particles";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import { useLayoutEffect, useRef } from "react";
+import {
+  ChangeEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { sendEmail } from "./actions/send-email";
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface FormDataState {
+  name: string;
+  email: string;
+  budget: string;
+  service: string;
+  message: string;
+}
+
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
+  const modalPanelRef = useRef<HTMLDivElement>(null);
+  const modalBackdropRef = useRef<HTMLDivElement>(null);
+
+  const [formData, setFormData] = useState<FormDataState>({
+    name: "",
+    email: "",
+    budget: "",
+    service: "",
+    message: "",
+  });
+
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendSuccess, setSendSuccess] = useState(false);
+
   const triggerRef = useRef<HTMLDivElement>(null);
   const pinnedElementRef = useRef<HTMLDivElement>(null);
   const horizontalTrackRef = useRef<HTMLDivElement>(null);
@@ -30,6 +63,45 @@ export default function Home() {
   const heroTriggerRef = useRef<HTMLDivElement>(null);
   const pinnedHeroElementRef = useRef<HTMLDivElement>(null);
 
+  const handleFormChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmitEmail = async () => {
+    setIsSending(true);
+    setSendError(null);
+    setSendSuccess(false);
+
+    try {
+      const result = await sendEmail(formData);
+
+      if (result?.success) {
+        setSendSuccess(true);
+        setFormData({
+          name: "",
+          email: "",
+          budget: "",
+          service: "",
+          message: "",
+        });
+      } else {
+        setSendError(
+          result?.message || "Failed to send email. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error calling sendEmail action:", error);
+      setSendError("An unexpected error occurred. Please try again.");
+    }
+    setIsSending(false);
+  };
+
   const addToRefs = (el: HTMLDivElement | null) => {
     if (el && !panelRefs.current.includes(el)) {
       panelRefs.current.push(el);
@@ -37,6 +109,10 @@ export default function Home() {
   };
 
   useLayoutEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     if (navbarWrapperRef.current) {
       gsap.set(navbarWrapperRef.current, { autoAlpha: 0, y: -50 });
     }
@@ -475,29 +551,83 @@ export default function Home() {
       });
     }
 
+    const currentHorizontalTrackRef = horizontalTrackRef.current;
+    const currentTlIntro = tlIntro;
+
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      if (horizontalTrackRef.current) {
-        gsap.killTweensOf(horizontalTrackRef.current);
+      if (currentHorizontalTrackRef) {
+        gsap.killTweensOf(currentHorizontalTrackRef);
       }
-      tlIntro.kill();
+      if (currentTlIntro) {
+        currentTlIntro.kill();
+      }
     };
+  }, [isLoading]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (isPanelVisible && modalPanelRef.current) {
+      modalPanelRef.current.focus();
+    }
+  }, [isPanelVisible]);
+
+  useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalDocElementOverflow = document.documentElement.style.overflow;
+
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalDocElementOverflow;
+    }
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalDocElementOverflow;
+    };
+  }, [isModalOpen]);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+    setSendSuccess(false);
+    setSendError(null);
+    setIsPanelVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsPanelVisible(false);
+    setIsModalOpen(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0  z-[9999] flex items-center justify-center bg-[#00040f]">
+        <p className="text-white text-[10vw] lg:text-[140px] font-kronaOne pointer-events-auto animate-pulse -translate-y-[5.7rem]">
+          SUMMON
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-x-hidden flex flex-col bg-[#00040f] gap-4">
-      {/* ParticleBackground is now fixed and global */}
       <div ref={particleWrapperRef} className="fixed inset-0 z-0">
-        {/* Full screen, behind content */}
         <ParticleBackground />
       </div>
 
-      {/* Navbar is now a direct child, outside of hero pinning structure */}
       <div ref={navbarWrapperRef} className="relative z-50">
         <Navbar />
       </div>
 
-      {/* Hero Section (to be pinned) */}
       <section ref={heroTriggerRef} className="relative h-screen z-20">
         <div ref={pinnedHeroElementRef} className="h-full w-full relative">
           <div
@@ -511,7 +641,6 @@ export default function Home() {
               className="object-cover w-auto h-auto"
             />
           </div>
-          {/* Content of hero section */}
           <div className="relative flex flex-col gap-[5rem] items-center justify-center h-full pointer-events-none">
             <p
               ref={summonTextRef}
@@ -537,7 +666,6 @@ export default function Home() {
         </div>
       </section>
       <div className="my-[15rem]"></div>
-      {/* section 2 - Horizontal Scroll Section */}
       <section ref={triggerRef} className="relative h-[300vh] z-10">
         <div
           ref={pinnedElementRef}
@@ -570,7 +698,6 @@ export default function Home() {
             ref={horizontalTrackRef}
             className="h-screen w-[300vw] flex flex-row relative"
           >
-            {/* Panel 1: Identify */}
             <div
               ref={addToRefs}
               className="h-screen w-screen flex flex-col justify-center items-center text-white p-8"
@@ -594,7 +721,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            {/* Panel 2: Design */}
             <div
               ref={addToRefs}
               className="h-screen w-screen flex flex-col justify-center items-center text-white p-8"
@@ -639,7 +765,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            {/* Panel 3: Develop */}
             <div
               ref={addToRefs}
               className="h-screen w-screen flex flex-col justify-center items-center text-white p-8"
@@ -711,7 +836,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* section 3 */}
       <section className="relative flex flex-col gap-4 text-white px-4 lg:px-0 pb-[10rem]">
         <p className="font-kronaOne text-3xl lg:text-[48px] text-center">
           FAST PACED AI BOUTIQUE
@@ -761,7 +885,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* section 4 */}
       <section className="relative flex flex-col py-[10rem]">
         <div className="flex flex-col mb-10 gap-1 text-white items-center justify-center">
           <p className="font-kronaOne text-[40px]">BUILD YOUR OWN AI</p>
@@ -829,7 +952,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* section 5 */}
       <section className="relative flex flex-col my-6 mx-10">
         <div className="flex flex-col text-white items-center justify-center my-6">
           <p className="font-kronaOne text-[40px]">ACTIVE USE CASE</p>
@@ -859,6 +981,300 @@ export default function Home() {
           />
         </div>
       </section>
+
+      <section className="relative flex flex-col items-center justify-center text-white py-20 px-4 lg:px-10 gap-8">
+        <p className="font-kronaOne text-3xl lg:text-[48px] text-center leading-tight">
+          The best AI systems are built <br />
+          <span className="text-blue-400">side by side</span>
+        </p>
+        <button
+          onClick={handleOpenModal}
+          className="bg-black hover:bg-blue-700 transition-colors text-white font-poppins border border-blue-600 text-lg py-4 px-10 rounded-full flex items-center gap-3"
+        >
+          let&apos;s partner up
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+            />
+          </svg>
+        </button>
+      </section>
+
+      {isModalOpen && (
+        <div
+          ref={modalBackdropRef}
+          className="fixed inset-0 bg-black bg-opacity-50 z-[9990] flex justify-end items-center"
+          onClick={handleCloseModal}
+        >
+          <div
+            ref={modalPanelRef}
+            tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
+            className={`bg-[#00040f] text-white w-full max-w-md p-6 md:p-8 shadow-xl \\
+                        rounded-xl m-4 md:m-8 max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)] overflow-y-auto outline-none overscroll-contain`}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-kronaOne text-xl md:text-2xl">
+                Partnership Inquiry
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-7 h-7 md:w-8 md:h-8"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div>
+              {!sendSuccess ? (
+                <form className="space-y-4 md:space-y-6">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="sm:w-1/2">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-poppins text-gray-300 mb-1"
+                      >
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleFormChange}
+                        placeholder="Enter your full name"
+                        className="w-full p-3 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
+                        disabled={isSending}
+                      />
+                    </div>
+                    <div className="sm:w-1/2">
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-poppins text-gray-300 mb-1"
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleFormChange}
+                        placeholder="Enter your email address"
+                        className="w-full p-3 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
+                        disabled={isSending}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="budget"
+                      className="block text-sm font-poppins text-gray-300 mb-1"
+                    >
+                      Budget Range
+                    </label>
+                    <select
+                      id="budget"
+                      name="budget"
+                      value={formData.budget}
+                      onChange={handleFormChange}
+                      className="w-full p-3 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
+                      disabled={isSending}
+                    >
+                      <option value="" disabled>
+                        Select Budget
+                      </option>
+                      <option value="$1,000 - $5,000">$1,000 - $5,000</option>
+                      <option value="$5,000 - $10,000">$5,000 - $10,000</option>
+                      <option value="$10,000 - $20,000">
+                        $10,000 - $20,000
+                      </option>
+                      <option value="$20,000+">$20,000+</option>
+                      <option value="Not Sure">Not Sure</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="service"
+                      className="block text-sm font-poppins text-gray-300 mb-1"
+                    >
+                      Service You&apos;re Interested In
+                    </label>
+                    <select
+                      id="service"
+                      name="service"
+                      value={formData.service}
+                      onChange={handleFormChange}
+                      className="w-full p-3 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500"
+                      disabled={isSending}
+                    >
+                      <option value="" disabled>
+                        Select Service
+                      </option>
+                      <option value="Lead Generation Agent">
+                        Lead Generation Agent
+                      </option>
+                      <option value="Credit Analyst Agent">
+                        Credit Analyst Agent
+                      </option>
+                      <option value="Deep Research Agent">
+                        Deep Research Agent
+                      </option>
+                      <option value="Custom AI Solution">
+                        Custom AI Solution
+                      </option>
+                      <option value="AI Consultation">AI Consultation</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="message"
+                      className="block text-sm font-poppins text-gray-300 mb-1"
+                    >
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={3}
+                      value={formData.message}
+                      onChange={handleFormChange}
+                      placeholder="Tell us more about your project..."
+                      className="w-full p-3 bg-gray-800 border border-gray-700 rounded-md text-white focus:ring-blue-500 focus:border-blue-500 resize-none"
+                      disabled={isSending}
+                    />
+                  </div>
+
+                  <div>
+                    <button
+                      type="button"
+                      onClick={handleSubmitEmail}
+                      disabled={isSending}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-poppins py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isSending ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Send Inquiry
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                            />
+                          </svg>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {sendError && (
+                    <p className="mt-2 text-sm text-red-400 font-poppins text-center">
+                      Error: {sendError}
+                    </p>
+                  )}
+                </form>
+              ) : (
+                <div className="text-center py-8">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-16 h-16 text-green-400 mx-auto mb-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                  <h3 className="font-kronaOne text-xl text-green-400 mb-2">
+                    Inquiry Sent!
+                  </h3>
+                  <p className="font-poppins text-gray-300 mb-6">
+                    Thank you for reaching out. We will get back to you soon.
+                  </p>
+                  <button
+                    onClick={handleCloseModal}
+                    className="bg-gray-700 hover:bg-gray-600 text-white font-poppins py-2 px-6 rounded-md transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
+
+              {!sendSuccess && (
+                <p className="font-inter text-xs text-gray-400 mt-4 md:mt-6 text-center">
+                  Alternatively, you can email us directly at{" "}
+                  <a
+                    href="mailto:tegarfadillah444@gmail.com"
+                    className="text-blue-400 hover:underline"
+                  >
+                    tegarfadillah444@gmail.com
+                  </a>
+                  .
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
